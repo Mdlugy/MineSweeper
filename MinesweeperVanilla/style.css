@@ -1,0 +1,26 @@
+body{background-color: aliceblue;display: flex; justify-content: center; align-items: center;height: 100vh;width: 100vw;}
+main{background-color: rgb(117, 152, 182);border: 1px black solid; min-width: 80vw; min-height: 50vh;display: flex; align-items: center; flex-direction: column;justify-content: center;gap:50px;padding: 100px;}
+.settings{border: 1px black solid; display: flex; justify-content: center;flex-direction: column;background-color: #4aaeb8; color: aliceblue;}
+table{display: flex;}
+tr{display: flex;margin: 0;padding:0}
+td{display: flex;margin: 0;padding:0}
+.row{display: flex;margin: 0;padding:0}
+.square {
+    background-color: #5f7577;
+    color: rgb(255, 71, 71);
+    height: 32px;
+    width: 32px;
+    border: 2px solid rgb(134, 134, 134);
+}
+    
+.square:active {
+    border: 2px solid rgb(68, 9, 9);
+}
+.noclick{    pointer-events: none; 
+}
+.clickeddown{
+    background-color: rgb(187, 230, 168);
+    height: 32px;
+    width: 32px;
+    border: 0px ;
+}

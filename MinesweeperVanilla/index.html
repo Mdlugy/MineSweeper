@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>MineSweeper</title>
+  </head>
+  <body>
+    <main>
+      <div class="board">
+        <div class="settings">
+          <h1 class="header">MineSweeper</h1>
+          <label for="height">please choose a board height:</label>
+          <input name="height" id="height" type="number" min="5" max="30" />
+          <label for="width">please choose a board width:</label>
+          <input name="width" id="width" type="number" min="5" max="24" />
+          <label for="difficulty">please choose a difficulty:</label>
+          <select name="difficulty" id="difficulty">
+            <option value="easy">easy</option>
+            <option value="medium">medium</option>
+            <option value="hard">hard</option>
+          </select>
+          <input
+            type="button"
+            onclick="start('height','width','difficulty')"
+            value="New Board"
+          />
+        </div>
+      </div>
+      <div id="game"></div>
+    </main>
+  </body>
+  <script src="script.js"></script>
+</html>
