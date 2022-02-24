@@ -1,6 +1,6 @@
-body{background-color: aliceblue;display: flex; justify-content: center; align-items: center;}
-main{background-color: rgb(117, 152, 182);border: 1px black solid;display: flex; align-items: center; height:100%;width:100%;flex-direction: column;justify-content: center;gap:50px;padding: 100px;}
-.settings{border: 1px black solid; display: flex; justify-content: center;flex-direction: column;background-color: #4aaeb8; color: aliceblue;padding: 5px;}
+body{background-color: rgb(0, 164, 235);display: flex; justify-content: center; align-items: center; height: 100vh;}
+main{background-color: rgb(0, 164, 235);;border: 1px black solid;display: flex; align-items: center; height:100%;width:100%;flex-direction: column;overflow: scroll;justify-content: center;gap:50px;padding: 100px;}
+.settings{border: 1px black solid; display: flex; justify-content: center;flex-direction: column;background-color: #0b8f12; color: aliceblue;padding: 5px;}
 #game{display: flex; flex-wrap: wrap;  background-color: #5f7577;
 }
 .square {
@@ -15,7 +15,11 @@ main{background-color: rgb(117, 152, 182);border: 1px black solid;display: flex;
     /* border: 2px solid rgb(134, 134, 134); */
     
 }
-
+#instructions{
+    color: rgb(186, 207, 193);
+    text-align: center;
+    font-size: large;
+}
 .square:active {
     border: 2px solid rgb(68, 9, 9);
 
@@ -24,7 +28,7 @@ main{background-color: rgb(117, 152, 182);border: 1px black solid;display: flex;
 }
 .clickeddown{
     font-size: 1rem;
-    background-color: rgb(187, 230, 168);
+    background-color: #c7c6c5d5;
     padding: 0;
     margin:0;
     text-align: center;
