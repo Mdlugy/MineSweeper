@@ -1,23 +1,18 @@
 var game;
-
-
-
 // set height/ width bounds
 var minHeight = 5;
 var maxHeight = 30;
 var minWidth = 5;
-var maxWidth = 31;
-
+var maxWidth = 30;
+// adjust game settings for vertical screens
 const phone = window.matchMedia("(max-width: 500px)")
 if (phone.matches) {
     maxHeight = 60;
     maxWidth = 12;
 }
-
-
+// apply bounds to game settings 
 document.getElementById("width").max = maxWidth
 document.getElementById("height").max = maxHeight
-
 // create object to equate string value of difficulty to numerical value
 const difficultyNum = {
     "easy": 10,
@@ -82,25 +77,28 @@ class GameBoard {
         return res
     }
     constructor(height, width, difficultyString) {
-        this.height = height,
-            this.width = width,
-            this.totalSquares = (height * width),
-            this.difficulty = difficultyNum[difficultyString],
-            this.bombs = this.calculateBombs(this.totalSquares, this.difficulty),
-            this.board = this.bombGrid(),
-            this.correct = this.totalSquares - this.bombs,
-            this.domElement = this.buildDomElement(),
-            this.squares = this.buildSquares(),
-            this.domValue = this.renderSquares(),
-            this.render()
+        this.height = height;
+        this.width = width;
+        this.totalSquares = (height * width);
+        this.difficulty = difficultyNum[difficultyString];
+        this.bombs = this.calculateBombs(this.totalSquares, this.difficulty);
+        this.board = this.bombGrid();
+        this.correct = this.totalSquares - this.bombs;
+        this.domElement = this.buildDomElement();
+        this.squares = []
+        this.domValue = ""
+    }
+    // to be properly constructed the squares object requires an instance of Gameboard to already exist, seperating Gameboard creation and creation of squares allows this to work properly
+    postInstance() {
+        this.squares = this.buildSquares();
+        this.domValue = this.renderSquares();
+        this.render();
     }
     buildDomElement() {
         let element = document.getElementById('game')
         element.style.width = this.width * 2 + "rem"
         element.style.height = this.height * 2 + "rem"
-
         return element
-
     }
     //  method for defining bomb quantity as a ratio of board size and difficulty
     calculateBombs() {
@@ -151,14 +149,25 @@ class Square {
     static bombs = []
     constructor(index, bomb) {
         this.index = index;
-        this.isBomb = this.isItBomb(bomb)
-        this.bg = ""
-        this.symbol = ""
-        this.str = this.buildString()
-        this.domElement = ""
+        this.isBomb = this.isItBomb(bomb);
+        this.bg = "";
+        this.symbol = "";
+        this.adjacentIndexes = this.getAdjacents();
+        this.str = this.buildString();
+        this.domElement = "";
+        this.textColors = ["#ffffff", "#fbff00", "#88ff00", "#00ffaa", "#00a2ff", "#0004ff", "#7700ff", "#f700ff", "#ff0000"]
     }
     buildString() {
-        return `<button class=" btn btn-outline-dark square" style="background-color:${this.bg}; padding:0"id="square${this.index}" oncontextmenu ="right(${this.index}); return false" onclick="hit(${this.index})">${this.symbol}</button>`
+        return `
+        <button
+        class=" btn btn-outline-dark square"
+        style="background-color:${this.bg};
+        padding:0"
+        id="square${this.index}"
+        oncontextmenu ="right(${this.index}); return false"
+        onclick="hit(${this.index})">
+        ${this.symbol}
+        </button>`
     }
     isItBomb(bomb) {
         if (bomb == 1) {
@@ -169,11 +178,12 @@ class Square {
     getDom() {
         this.domElement = document.getElementById(`square${this.index}`)
     }
+    // seperate methods for rendering (p Render renders squares which are clicked down and enclosed in a P tag)
     pRender() {
         this.getDom()
         this.domElement.outerHTML = this.str
-
     }
+    // BTN Render renders squares which are still buttons
     BtnRender() {
         this.getDom()
         this.buildString()
@@ -195,14 +205,31 @@ class Square {
         }
         this.BtnRender()
     }
+    check() {
+        // stop hit if in a blocked array
+        if (this.noclick()) { return }
+        // if bomb pass to bombHit method
+        if (this.isBomb == 1) { this.bombHit() }
+        // otherwise pass to squareHit
+        else { this.squareHit() }
+        // P Render this square
+        this.pRender()
+        // check win condition
+        if (Square.used.length == game.correct) { newGame(true) }
+    }
     noclick() {
+        /*(although a player can't click on a used square, 
+        the loop of programatically clicking through adjacent squares on a 0, creates an issue, 
+        since the same square is often loaded into the que for the click method to be called multiple times,
+        checking for a used square before a click makes sure the game doesn't end early. 
+        with a time complexity of O(N) and a maximum N value of 810 per call this feels like an acceptable tradeoff.*/
         if (Square.used.includes(this.index)) { return true }
+        // stops player from clicking square with a flag or question mark
         if (Square.flagged.includes(this.index)) { return true }
         return false
     }
-    check() {
-        if (this.noclick()) { return }
-        if (this.isBomb == 1) {
+    bombHit() {
+        {
             this.str = `<p class="clickeddown" style="background-color:white" >💣</p>`
             let otherBombs = Square.bombs
             otherBombs.splice(otherBombs.indexOf(this.index), 1)
@@ -214,31 +241,36 @@ class Square {
             game.removeclick()
             newGame(false)
         }
-        else {
-            Square.used.push(this.index)
-            let adjacents = this.getAdjacents()
-            let totalAdjacent = 0
-            for (var key in adjacents) {
-                if (adjacents.hasOwnProperty(key)) {
-                    totalAdjacent += game.squares[adjacents[key]].isBomb
-                }
-            }
-            this.str = `<p class="clickeddown">${totalAdjacent}</p>`
-            if (totalAdjacent == 0) {
-                for (var key in adjacents) {
-                    if (adjacents.hasOwnProperty(key)) {
-                        game.squares[adjacents[key]].check()
-                    }
+    }
+    squareHit() {
+        Square.used.push(this.index)
+        let adjacentNum = this.getTotalAdjacent()
+        this.str = `<p class="clickeddown" style="color:${this.textColors[adjacentNum]}">${adjacentNum}</p>`
+        if (adjacentNum == 0) {
+            for (var key in this.adjacentIndexes) {
+                if (this.adjacentIndexes.hasOwnProperty(key)) {
+                    game.squares[this.adjacentIndexes[key]].check()
                 }
             }
         }
-        this.pRender()
-        if (Square.used.length == game.correct) { newGame(true) }
+    }
+    clickadjacents() {
+        for (var key in this.adjacentIndexes) {
+            if (this.adjacentIndexes.hasOwnProperty(key)) {
+                game.squares[this.adjacentIndexes[key]].check()
+            }
+        }
+    }
+    getTotalAdjacent() {
+        let totalAdjacent = 0
+        for (var key in this.adjacentIndexes) {
+            if (this.adjacentIndexes.hasOwnProperty(key)) {
+                totalAdjacent += game.squares[this.adjacentIndexes[key]].isBomb
+            }
+        }
+        return totalAdjacent
     }
     getAdjacents() {
-        // let pos = this.index;
-        // let width = game.width
-        // let height = game.height
         let adjacents = {
             topLeft: (this.index - game.width - 1),
             top: (this.index - game.width),
@@ -276,6 +308,14 @@ class Square {
 
 
 const start = () => {
+    document.getElementById("entry").innerHTML = `
+    <button
+    class=" btn btn-outline-dark square"
+    style="background-color:green;width: 10rem;height:5rem"
+    onclick="entrypoint()">
+    click me to reveal a zero area
+    </button>`
+    document.getElementById("instructions").innerHTML = "click a square to check for bombs</br>the number shown is the total bombs encircling the number</br>right click a square to flag it</br>"
     const difficultyInput = document.getElementById("difficulty").value;
     const heightInput = parseInt(document.getElementById("height").value);
     const widthInput = parseInt(document.getElementById("width").value);
@@ -284,10 +324,12 @@ const start = () => {
         alert(inValidation)
         return;
     }
+
+    game = new GameBoard(heightInput, widthInput, difficultyInput)
+    game.postInstance()
     Square.bombs = []
     Square.used = []
     Square.flagged = []
-    game = new GameBoard(heightInput, widthInput, difficultyInput)
     game.domElement.style.pointerEvents = 'auto'
 }
 const hit = (index) => {
@@ -314,4 +356,12 @@ const newGame = (result) => {
         if (confirm(message)) { start() }
         else { return }
     })
+}
+const entrypoint = () => {
+    for (let i = 0; i < game.squares.length; i++) {
+        if (game.squares[i].getTotalAdjacent() === 0 && game.squares[i].isBomb == 0 && !Square.used.includes(i)) {
+            game.squares[i].check();
+            return;
+        }
+    }
 }
