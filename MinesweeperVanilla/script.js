@@ -1,9 +1,23 @@
 var game;
+
+
+
 // set height/ width bounds
-const minHeight = 5;
-const maxHeight = 30;
-const minWidth = 5;
-const maxWidth = 30;
+var minHeight = 5;
+var maxHeight = 30;
+var minWidth = 5;
+var maxWidth = 31;
+
+const phone = window.matchMedia("(max-width: 500px)")
+if (phone.matches) {
+    maxHeight = 60;
+    maxWidth = 12;
+}
+
+
+document.getElementById("width").max = maxWidth
+document.getElementById("height").max = maxHeight
+
 // create object to equate string value of difficulty to numerical value
 const difficultyNum = {
     "easy": 10,
@@ -77,8 +91,8 @@ class GameBoard {
             this.correct = this.totalSquares - this.bombs,
             this.domElement = this.buildDomElement(),
             this.squares = this.buildSquares(),
-            this.domValue = this.renderSquares()
-        this.render()
+            this.domValue = this.renderSquares(),
+            this.render()
     }
     buildDomElement() {
         let element = document.getElementById('game')
@@ -112,7 +126,6 @@ class GameBoard {
     buildSquares() {
         let arr = []
         this.board.forEach((isBomb, index) => {
-            console.log(isBomb)
             arr.push(new Square(index, isBomb))
         })
         return arr
@@ -127,6 +140,9 @@ class GameBoard {
     render() {
         this.domElement.innerHTML = this.domValue
     }
+    removeclick() {
+        this.domElement.style.pointerEvents = 'none'
+    }
 }
 
 class Square {
@@ -134,42 +150,127 @@ class Square {
     static flagged = [];
     static bombs = []
     constructor(index, bomb) {
-        this.isBomb = bomb;
         this.index = index;
+        this.isBomb = this.isItBomb(bomb)
+        this.bg = ""
         this.symbol = ""
-        this.str = `<button class="square btn btn-outline-dark" id="square${index}" oncontextmenu ="right(${index}); return false" onclick="hit(${index})">${this.symbol}</button>`
+        this.str = this.buildString()
         this.domElement = ""
+    }
+    buildString() {
+        return `<button class=" btn btn-outline-dark square" style="background-color:${this.bg}; padding:0"id="square${this.index}" oncontextmenu ="right(${this.index}); return false" onclick="hit(${this.index})">${this.symbol}</button>`
+    }
+    isItBomb(bomb) {
+        if (bomb == 1) {
+            Square.bombs.push(this.index)
+        }
+        return bomb
     }
     getDom() {
         this.domElement = document.getElementById(`square${this.index}`)
     }
-    reRender() {
+    pRender() {
+        this.getDom()
         this.domElement.outerHTML = this.str
+
+    }
+    BtnRender() {
+        this.getDom()
+        this.buildString()
+        this.domElement.outerHTML = this.buildString()
     }
     right() {
-        this.getDom()
         switch (this.symbol) {
             case "🚩":
                 this.symbol = "?"
                 break;
             case "?":
                 this.symbol = "";
-                Square.flagged.splice(Square.flagged.indexOf(index), 1)
+                Square.flagged.splice(Square.flagged.indexOf(this.index), 1)
+                break;
             default:
                 this.symbol = "🚩"
                 Square.flagged.push(this.index)
                 break;
         }
+        this.BtnRender()
+    }
+    noclick() {
+        if (Square.used.includes(this.index)) { return true }
+        if (Square.flagged.includes(this.index)) { return true }
+        return false
     }
     check() {
-        this.getDom()
+        if (this.noclick()) { return }
         if (this.isBomb == 1) {
-            this.str = `<p class="clickeddown" >bom</p>`
+            this.str = `<p class="clickeddown" style="background-color:white" >💣</p>`
+            let otherBombs = Square.bombs
+            otherBombs.splice(otherBombs.indexOf(this.index), 1)
+            otherBombs.forEach((bomb) => {
+                game.squares[bomb].bg = "red";
+                game.squares[bomb].symbol = "💣";
+                game.squares[bomb].BtnRender()
+            })
+            game.removeclick()
+            newGame(false)
         }
         else {
-            this.str = `<p class="clickeddown">1</p>`
+            Square.used.push(this.index)
+            let adjacents = this.getAdjacents()
+            let totalAdjacent = 0
+            for (var key in adjacents) {
+                if (adjacents.hasOwnProperty(key)) {
+                    totalAdjacent += game.squares[adjacents[key]].isBomb
+                }
+            }
+            this.str = `<p class="clickeddown">${totalAdjacent}</p>`
+            if (totalAdjacent == 0) {
+                for (var key in adjacents) {
+                    if (adjacents.hasOwnProperty(key)) {
+                        game.squares[adjacents[key]].check()
+                    }
+                }
+            }
         }
-        this.reRender()
+        this.pRender()
+        if (Square.used.length == game.correct) { newGame(true) }
+    }
+    getAdjacents() {
+        // let pos = this.index;
+        // let width = game.width
+        // let height = game.height
+        let adjacents = {
+            topLeft: (this.index - game.width - 1),
+            top: (this.index - game.width),
+            topRight: (this.index - game.width + 1),
+            left: (this.index - 1),
+            right: (this.index + 1),
+            bottomLeft: (this.index + game.width - 1),
+            bottom: (this.index + game.width),
+            bottomRight: (this.index + game.width + 1),
+        }
+        let deleteArr = []
+        // if the square is on the first line, all squares above it will be out of scope and should be removed
+        if (this.index < game.width) {
+            deleteArr.push("topLeft", "top", "topRight")
+        }
+        // if the square is on the last line, all squares below it will be out of scope and should be removed
+        if (this.index >= game.width * (game.height - 1)) {
+            deleteArr.push("bottomLeft", "bottom", "bottomRight")
+        }
+        // if the square is on the first column all the left hand squares should be removed
+        if (this.index % game.width == 0) {
+            deleteArr.push("topLeft", "left", "bottomLeft")
+        }
+        // if the square is on the last column all the right hand squares should be removed
+        if ((this.index + 1) % game.width == 0) {
+            deleteArr.push("topRight", "right", "bottomRight")
+        }
+        // filter out all keys from adjacents that were added to our filtering array
+        deleteArr.forEach((location) => {
+            delete adjacents[location]
+        })
+        return adjacents
     }
 }
 
@@ -183,11 +284,34 @@ const start = () => {
         alert(inValidation)
         return;
     }
+    Square.bombs = []
+    Square.used = []
+    Square.flagged = []
     game = new GameBoard(heightInput, widthInput, difficultyInput)
+    game.domElement.style.pointerEvents = 'auto'
 }
 const hit = (index) => {
     let square = game.squares[index]
     // square.domElement = document.getElementById(`square${index}`)
-    console.log(square)
     square.check()
+}
+const right = (index) => {
+    let square = game.squares[index]
+    square.right()
+}
+const delay = (time) => {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
+const newGame = (result) => {
+    let message = alerts["lose"]
+
+    if (result) {
+        message = alerts["Win"]
+    }
+    // show confirmation box with message, run start function if player confirms
+    delay(100).then(() => {
+        if (confirm(message)) { start() }
+        else { return }
+    })
 }
