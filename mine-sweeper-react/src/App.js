@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Settings from './components/settings';
-import Game from './game';
+import Game from './components/game';
 function App() {
   const [game, setGame] = useState()
   return (

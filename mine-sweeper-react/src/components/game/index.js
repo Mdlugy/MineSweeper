@@ -1,6 +1,6 @@
 import React from 'react'
-import { Board, Gamebutton } from './gameElements'
-
+import { Board } from './gameElements'
+import Squares from '../squares'
 const Game = (props) => {
     if (!props.game) { return <></> }
     return (
@@ -8,7 +8,7 @@ const Game = (props) => {
 
             <Board game={props.game}>
                 {props.game.board.map((square) => (
-                    <Gamebutton>{square.index}</Gamebutton>
+                    <Squares game={props.game}>{square.index}</Squares>
                 ))}</Board>
         </>
     )

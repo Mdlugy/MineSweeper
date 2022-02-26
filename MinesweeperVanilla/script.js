@@ -146,7 +146,7 @@ class GameBoard {
 class Square {
     static used = [];
     static flagged = [];
-    static bombs = []
+    static bombs = [];
     constructor(index, bomb) {
         this.index = index;
         this.isBomb = this.isItBomb(bomb);
@@ -231,9 +231,12 @@ class Square {
     bombHit() {
         {
             this.str = `<p class="clickeddown" style="background-color:white" >💣</p>`
-            let otherBombs = Square.bombs
-            otherBombs.splice(otherBombs.indexOf(this.index), 1)
+            let otherBombs = Square.bombs;
+            console.log(Square.bombs)
+
+            otherBombs.splice(otherBombs.indexOf(this.index), 1);
             otherBombs.forEach((bomb) => {
+                console.log('bomb')
                 game.squares[bomb].bg = "red";
                 game.squares[bomb].symbol = "💣";
                 game.squares[bomb].BtnRender()
@@ -308,14 +311,6 @@ class Square {
 
 
 const start = () => {
-    document.getElementById("entry").innerHTML = `
-    <button
-    class=" btn btn-outline-dark square"
-    style="background-color:green;width: 10rem;height:5rem"
-    onclick="entrypoint()">
-    click me to reveal a zero area
-    </button>`
-    document.getElementById("instructions").innerHTML = "click a square to check for bombs</br>the number shown is the total bombs encircling the number</br>right click a square to flag it</br>"
     const difficultyInput = document.getElementById("difficulty").value;
     const heightInput = parseInt(document.getElementById("height").value);
     const widthInput = parseInt(document.getElementById("width").value);
@@ -324,12 +319,19 @@ const start = () => {
         alert(inValidation)
         return;
     }
-
-    game = new GameBoard(heightInput, widthInput, difficultyInput)
-    game.postInstance()
+    document.getElementById("entry").innerHTML = `
+    <button
+    class=" btn btn-outline-dark square"
+    style="background-color:green;width: 10rem;height:5rem"
+    onclick="entrypoint()">
+    click me to reveal a zero area
+    </button>`
+    document.getElementById("instructions").innerHTML = "click a square to check for bombs</br>the number shown is the total bombs encircling the number</br>right click a square to flag it</br>"
     Square.bombs = []
     Square.used = []
     Square.flagged = []
+    game = new GameBoard(heightInput, widthInput, difficultyInput)
+    game.postInstance()
     game.domElement.style.pointerEvents = 'auto'
 }
 const hit = (index) => {
