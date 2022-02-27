@@ -1,4 +1,4 @@
-import React, { useState, Component } from 'react';
+import React, { useState } from 'react';
 import { Form } from './settingsElements'
 import { Globals } from '../gameLogic/Globals';
 import GameBoard from '../gameLogic/GameBoard';
