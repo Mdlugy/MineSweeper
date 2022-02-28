@@ -97,7 +97,7 @@ class GameBoard {
         this.domValue = "";
     }
     // to be properly constructed the squares object requires an instance of Gameboard to already exist, seperating Gameboard creation and creation of squares allows this to work properly
-    postInstance() {
+    Init() {
         this.squares = this.buildSquares();
         this.domValue = this.renderSquares();
         this.render();
@@ -368,7 +368,7 @@ const start = () => {
     Square.used = [];
     Square.flagged = [];
     game = new GameBoard(heightInput, widthInput, difficultyInput);
-    game.postInstance();
+    game.Init();
     game.domElement.style.pointerEvents = "auto";
 };
 const hit = (index) => {
