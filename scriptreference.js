@@ -173,7 +173,6 @@ const start = () => {
         return;
     }
     let game = new GameBoard(height, width, difficulty)
-    console.log(game)
 
     // validate against bad inputs
 

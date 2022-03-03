@@ -52,22 +52,13 @@ export default class GameBoard {
         this.bombs = this.calculateBombs();
         this.correct = this.totalSquares - this.bombs;
         this.board = this.bombGrid();
-        this.squares = []
+        this.squares = [];
     }
+    // init() {
+    //     this.buildSquares();
+    // }
     toString() { return `height ${this.height} width ${this.width} difficultyNum ${this.difficulty} bombs ${this.bombs}` }
 
-    // // to be properly constructed the squares object requires an instance of Gameboard to already exist, seperating Gameboard creation and creation of squares allows this to work properly
-    // postInstance() {
-    //     this.squares = this.buildSquares();
-    //     this.domValue = this.renderSquares();
-    //     this.render();
-    // }
-    // buildDomElement() {
-    //     let element = document.getElementById('game')
-    //     element.style.width = this.width * 2 + "rem"
-    //     element.style.height = this.height * 2 + "rem"
-    //     return element
-    // }
     // //  method for defining bomb quantity as a ratio of board size and difficulty
     calculateBombs() {
         return Math.ceil(this.totalSquares / this.difficulty)
@@ -90,12 +81,10 @@ export default class GameBoard {
         return board
     }
     buildSquares() {
+        if (this.squares.length === this.board.length) { return }
+        // can't find the place in my codebase that's causing this issue, but without this blocking statement buildSquares fires twice. will try to resolve this issue, but leaving in a blocking statement for now. 
         this.board.forEach((isBomb, index) => {
             this.squares.push(new Square(index, isBomb))
         })
     }
-
-    // removeclick() {
-    //     this.domElement.style.pointerEvents = 'none'
-    // }
 }
