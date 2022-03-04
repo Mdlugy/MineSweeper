@@ -54,9 +54,7 @@ export default class GameBoard {
         this.board = this.bombGrid();
         this.squares = [];
     }
-    // init() {
-    //     this.buildSquares();
-    // }
+
     toString() { return `height ${this.height} width ${this.width} difficultyNum ${this.difficulty} bombs ${this.bombs}` }
 
     // //  method for defining bomb quantity as a ratio of board size and difficulty
