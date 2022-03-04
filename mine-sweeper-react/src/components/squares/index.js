@@ -2,28 +2,15 @@ import React, { useEffect } from 'react'
 import Square from '../gameLogic/Square'
 import { useState } from 'react'
 import { Gamebutton, GameSquare } from './squaresElements'
+import { Globals } from '../gameLogic/Globals'
 
-// const Squares = (props) => {
-//     const Square = props.game.squares[props.index]
-//     useEffect(() => { if (Square.loopHit) { Square.hit() } }, [])
-//     const handleClick = (e) => {
-//         e.preventDefault();
-//         Square.hit()
-//     }
-//     const handleRight = (e) => {
-//         e.preventDefault();
-//         Square.right()
-//     }
-//     return (
-//         <Gamebutton onClick={handleClick} onContextMenu={handleRight}></Gamebutton>
-//     )
-// }
 const Squares = (props) => {
     props.square.init(props.game);
     const [squareval, setSquareVal] = useState("")
     const [clicked, setClicked] = useState(props.square.clicked)
     const [inner, setInner] = useState(props.square.totalAdjacent)
     const [bg, setbg] = useState("#5f7577")
+    const [outerBG, setOuterBG] = useState("aliceblue")
 
     useEffect(() => {
         // resets square to unclicked when new game object is instantiated
@@ -33,11 +20,25 @@ const Squares = (props) => {
         setSquareVal("")
         Square.flagged = []
         Square.used = []
+        props.setLost(false)
+        setOuterBG("aliceblue")
+        setSquareVal("")
+
+
     }, [props.game, props.square.totalAdjacent]);
 
     useEffect(() => {
         setClicked(props.square.clicked)
     }, [props.check, props.square.clicked])
+
+    useEffect(() => {
+        if (props.lost) {
+            if (props.square.bomb === 1) {
+                setOuterBG("red")
+                setSquareVal("💣")
+            }
+        }
+    }, [props.lost])
 
     const handleClick = (e) => {
         e.preventDefault();
@@ -46,7 +47,12 @@ const Squares = (props) => {
             setInner("💣")
             setbg("white")
             setClicked(true)
-            props.setLostSquare(props.square.index)
+            props.setLost(true)
+            setTimeout(() => {
+                if (window.confirm(Globals.alerts.lose)) {
+                    props.setStartNew(true)
+                }
+            }, 100)
         }
         else if (props.square.bomb === 0) {
             props.square.click()
@@ -69,18 +75,18 @@ const Squares = (props) => {
                 break;
         }
     }
-    if (props.lost && props.lostSquare !== props.square.index) {
-        if (props.square.bomb === 1) {
-            setbg("red")
-            setInner("💣")
-        }
-    }
+    // if (props.lost && props.lostSquare !== props.square.index) {
+    //     if (props.square.bomb === 1) {
+    //         setbg("red")
+    //         setInner("💣")
+    //     }
+    // }
 
     return (
         <>
             {clicked ?
                 <GameSquare style={{ color: props.square.textColors[props.square.totalAdjacent], backgroundColor: bg }}>{inner}</GameSquare> :
-                <Gamebutton onClick={handleClick} onContextMenu={handleRight}>{squareval}</Gamebutton>
+                <Gamebutton onClick={handleClick} style={{ backgroundColor: outerBG }} onContextMenu={handleRight}>{squareval}</Gamebutton>
             }
         </>
 
