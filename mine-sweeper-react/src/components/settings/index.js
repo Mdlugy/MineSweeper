@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Form } from './settingsElements'
 import { Globals } from '../gameLogic/Globals';
 import GameBoard from '../gameLogic/GameBoard';
-import Squares from '../squares';
-import Game from '../game';
+
 const Settings = (props) => {
-    const [width, setWidth] = useState(5)
-    const [height, setHeight] = useState(5)
+    const [width, setWidth] = useState(Globals.minWidth)
+    const [height, setHeight] = useState(Globals.minHeight)
     const [difficulty, setDifficulty] = useState("easy")
     const options = [
         { value: "easy", fraction: "1/10", label: "Easy" },

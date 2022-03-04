@@ -75,12 +75,9 @@ const Squares = (props) => {
                 break;
         }
     }
-    // if (props.lost && props.lostSquare !== props.square.index) {
-    //     if (props.square.bomb === 1) {
-    //         setbg("red")
-    //         setInner("💣")
-    //     }
-    // }
+    if (inner === 0) {
+        setInner("")
+    }
 
     return (
         <>

@@ -11,7 +11,6 @@ function App() {
     <div className="App">
       <main>
         <h1>MineSweeper</h1>
-        <p>{ }</p>
         <Settings game={game} startNew={startNew} setStartNew={setStartNew} setNewGame={setNewGame} setGame={setGame} />
         {game ? <Game game={game} newGame={newGame} setStartNew={setStartNew}
           setNewGame={setNewGame} /> : <></>}

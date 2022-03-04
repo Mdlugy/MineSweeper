@@ -15,7 +15,6 @@ const Game = (props) => {
     useEffect(() => {
 
         setCheck(false)
-        console.log(Square.used.length, props.game.correct)
         if (Square.used.length === props.game.correct) {
 
             setTimeout(() => {
@@ -30,8 +29,18 @@ const Game = (props) => {
     if (!props.game) { return <></> }
     props.game.buildSquares();
 
+    const handle1stZero = (e) => {
+        e.preventDefault();
+        for (let i = 0; i < props.game.squares.length; i++) {
+            if (props.game.squares[i].totalAdjacent === 0 && !Square.used.includes(i) && props.game.squares[i].bomb !== 1) {
+                props.game.squares[i].click()
+                setCheck(true)
+                return;
+            }
+        }
+    }
     return (
-        <>
+        <>  <button onClick={handle1stZero}>hit First zero</button>
             <Board game={props.game}>
                 {props.game.squares.map((square) =>
                     <Squares check={check} setCheck={setCheck} game={props.game} key={`Square${square.index}`} square={square} setStartNew={props.setStartNew} setLost={setLost} lost={lost} ></Squares>
